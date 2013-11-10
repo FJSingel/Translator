@@ -4,3 +4,9 @@ Created on Nov 8, 2013
 FJS52@case.edu
 This module translates a series of spaces strings into CSVs
 """
+
+import re
+import sys
+
+for line in sys.stdin:
+	print line
