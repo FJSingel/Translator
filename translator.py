@@ -87,5 +87,5 @@ def _assert_not_empty(item):
 		raise ValueError
 
 if __name__ == '__main__':
-	lines = stdin.readlines()
+	lines = stdin.xreadlines()
 	main(lines)
