@@ -18,13 +18,14 @@ regexes = ["\d{7} ",
 			"F13 ",
 			"S[0-9]{2} "]
 
-EXIT_FAILURE = -1
-
+EXIT_FAILURE = False
+EXIT_SUCCESS = True
 
 def main(lines):
 	'''
 	Takes a list of lines as input.
 	'''
+
 	for line in lines:
 		tokens = _format_line(line)
 
@@ -43,6 +44,7 @@ def main(lines):
 		tokens.remove("F13 ")
 		line = "".join([token[:-1] + ',' for token in tokens])
 		print line[:-1]
+	return EXIT_SUCCESS
 
 def _validate_tokens(tokens):
 	token_pairs = zip(regexes, tokens)
