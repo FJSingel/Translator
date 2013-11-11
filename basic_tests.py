@@ -49,17 +49,17 @@ class BasisTests(TestCase):
     """
     def test_no_lines(self, output):
         #Test for 28, Boundary test
-        assert_equals(True, translator.main([]))
+        assert_equals(EXIT_SUCCESS, translator.main([]))
         assert_equals("", output.getvalue())
 
     def test_six_tokens(self, output):
         #Test if 32, Bpundary test
-        assert_equals(True, translator.main(["1234567 MCKINLEY NATHAN nmc F13 S15"]))
+        assert_equals(EXIT_SUCCESS, translator.main(["1234567 MCKINLEY NATHAN nmc F13 S15"]))
         assert_equals("1234567,McKinley,Nathan,,nmc,S15\n", output.getvalue())
 
     def test_five_tokens(self, output):
         #Test Elif 34
-        assert_equals(False, translator.main(["1234567 MCKINLEY nmc F13 S15"]))
+        assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY nmc F13 S15"]))
         assert_equals(NO_MATCH, output.getvalue())
 
     def test_validate_no_tokens(self, output):
@@ -100,48 +100,77 @@ class BasisTests(TestCase):
         with assert_raises(ValueError):
             translator._assert_not_empty("")
 
-
-class DataFlow(TestCase):
-    """
-    Test some dataflow cases
-    """
-
-
-    pass
-
+@patch('sys.stdout', new_callable=StringIO)
 class BoundaryTests(TestCase):
     """
-    Test some boundary data
+    Test for off-by-one errors: just above/below/on min
+    Contains most of BadData tests
     """
-    pass
+    def test_min_input(self, output):
+        assert_equals(EXIT_SUCCESS, translator.main(["0000000 M N n F13 S00"]))
+        assert_equals("0000000,M,N,,n,S00\n", output.getvalue())
 
-class GoodData(TestCase):
+    def test_no_number(self, output):
+        assert_equals(EXIT_FAILURE, translator.main([" MCKINLEY NATHAN nmc F13 S15"]))
+        assert_equals(NO_MATCH, output.getvalue())
+
+    def test_missing_name(self, output):
+        assert_equals(EXIT_FAILURE, translator.main(["1234567 N n F13 S00"]))
+        assert_equals(NO_MATCH, output.getvalue())
+
+    def test_no_id(self, output):
+        assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY NATHAN F13 S15"]))
+        assert_equals(NO_MATCH, output.getvalue())
+
+    def test_no_F13(self, output):
+        assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY NATHAN nmc S15"]))
+        assert_equals(NO_MATCH, output.getvalue())
+
+    def test_no_SXX(self, output):
+        assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY NATHAN nmc F13"]))
+        assert_equals(NO_MATCH, output.getvalue())
+
+@patch('sys.stdout', new_callable=StringIO)
+class DataFlow(TestCase):
     """
-    Test some nominal data
+    Test as many if's as possible
     """
     @class_setup
     def setUp(self):
         self.input = ["1234567 MCKINLEY D'NA-THAN AWESOME nmc F13 S15", "2345678 GUTMAN CAMERON camg F13 S14"]
         self.output = "1234567,McKinley,D'Na-than,Awesome,nmc,S15\n2345678,Gutman,Cameron,,camg,S14\n"
 
-    @patch('sys.stdout', new_callable=StringIO)
     def test_multiple_lines(self, output):
-        assert_equals(True, translator.main(self.input))
+        assert_equals(EXIT_SUCCESS, translator.main(self.input))
         assert_equals(self.output, output.getvalue())
 
 class BadData(TestCase):
     """
     Test some bad data
     """
-    pass
+    def test_bad_number(self, output):
+        assert_equals(EXIT_FAILURE, translator.main(["1234 MCKINLEY NATHAN nmc F13 S15"]))
+        assert_equals(NO_MATCH, output.getvalue())
 
+    
+
+@patch('sys.stdout', new_callable=StringIO)
 class StressTest(TestCase):
     """
     Some stress testing
     """
+
     @suite('stress', reason="Time Intensive Stress Test not needed on every test run")
-    def test_more_input(self):
-        pass
+    def test_more_input(self, output):
+        old = ["0009001 L"]
+        new = "0009001,L"
+        for x in xrange(1,100000):
+            old[0] += "E"
+            new += 'e'
+        old[0] += "ROY JENKINS lrj F13 S15"
+        new += "roy,Jenkins,,lrj,S15\n"
+        assert_equals(EXIT_SUCCESS, translator.main(old))
+        assert_equals(new, output.getvalue())
 
 class ErrorGuessing(TestCase):
     """
