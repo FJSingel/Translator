@@ -23,7 +23,7 @@ _format_name:       2
 For     79
 if      80
 
-_assert_not_empty:  1
+_not_empty_or_valueerror:  1
 If      86
 
 Total:              10
@@ -39,7 +39,6 @@ import translator
 
 NO_MATCH = "Data is empty or does not match. Exiting.\n"
 TOKEN_ERROR = "Error in token: "
-EMPTY_LIST_ERROR = "List is empty\n"
 NONSEVEN_LIST_ERROR = "List not of length 7\n"
 EXIT_SUCCESS = True
 EXIT_FAILURE = False
@@ -66,17 +65,17 @@ class BasisTests(TestCase):
 
     def test_validate_no_tokens(self, output):
         #Test If 49
-        with assert_raises(ValueError):
+        with assert_raises(AssertionError):
             translator._validate_tokens([])
 
     def test_mismatch(self, output):
         #Test If 53
-        with assert_raises(ValueError):
+        with assert_raises(AssertionError):
             translator._validate_tokens(["ERROR"])
-        assert_equals(NONSEVEN_LIST_ERROR, output.getvalue())
+        assert_equals("", output.getvalue())
 
     def test_tokenize_input(self, output):
-        #Test for 62
+        #Test for 62 with empty string
         assert_equals([], translator._tokenize_input(""))
 
     def test_format_output(self, output):
@@ -85,28 +84,23 @@ class BasisTests(TestCase):
             translator._format_output(["1234567 ", "MCKINLEY ", "NATHAN ", "nmc ", "F13 ", "S15 "]))
 
     def test_format_no_output(self, output):
-        with assert_raises(ValueError):
+        with assert_raises(AssertionError):
             translator._format_output([])
-        assert_equals(EMPTY_LIST_ERROR, output.getvalue())
+        assert_equals("", output.getvalue())
 
     def test_format_no_name(self, output):
-        with assert_raises(ValueError):
+        with assert_raises(AssertionError):
             translator._format_name("")
-        assert_equals(EMPTY_LIST_ERROR, output.getvalue())
+        assert_equals("", output.getvalue())
 
     def test_format_name_prefix(self, output):
         #test if 80
         assert_equals("McKinley", translator._format_name("MCKINLEY"))
 
-    def test_assert_not_empty(self, output):
+    def test_len_seven_or_valueerror(self, output):
         with assert_raises(ValueError):
-            translator._assert_not_empty("")
-        translator._assert_not_empty("A")
-
-    def test_assert_size_seven(self, output):
-        with assert_raises(ValueError):
-            translator._assert_size_seven(["","","","","",""])
-        translator._assert_size_seven(["","","","","","",""])
+            translator._len_seven_or_valueerror(["","","","","",""])
+        translator._len_seven_or_valueerror(["","","","","","",""])
 
 @patch('sys.stdout', new_callable=StringIO)
 class BoundaryTests(TestCase):
@@ -202,32 +196,6 @@ class StressTest(TestCase):
         new += "roy,Jenkins,,lrj,S15\n"
         assert_equals(EXIT_SUCCESS, translator.main(old))
         assert_equals(new, output.getvalue())
-
-class ErrorGuessing(TestCase):
-    """
-    Guessing errors here
-    """
-    pass
-
-'''
-TODO
-test empty lines
-makefile
-'''
-# class ExhaustiveTests(unittest.TestCase):
-
-#     def setUp(self):
-#         pass
-
-#     def test_validate_tokens(self):
-#         #translator.sys.stdin = lambda _: '1234567 MCKINLEY NATHAN AWESOME nmc F13 S15'
-#         tokens = ["1234567 ",  "LA'LA'MCKINLEY-KUN ", "NATHAN ", "AWESOME ", "nmc ", "F13 ", "S15 "]
-#         self.assertRaises(ValueError, translator._validate_tokens, tokens)
-
-#     def test_end_to_end(self):
-#         sys.stdin = {"Let's try to break this.\nWoah."}
-#         #sys.stdin = open(input.txt)
-#         print translator.main()
 
 if __name__ == '__main__':
     run()
