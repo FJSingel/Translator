@@ -15,16 +15,11 @@ class BasisTests(TestCase):
         self.input = ["1234567 MCKINLEY NATHAN AWESOME nmc F13 S15"]
         self.output = "1234567,MCKINLEY,NATHAN,AWESOME,nmc,S15\n"
 
-    @patch('sys.stdout', new_callable=StringIO)
-    def test_nominal(self, output):
-        # translator.main(self.input)
-        assert(translator.main(self.input))
-        assert_equals(self.output, output.getvalue())
-
 class DataFlow(TestCase):
     """
     Test some dataflow cases
     """
+
     pass
 
 class BoundaryTests(TestCase):
@@ -37,7 +32,15 @@ class GoodData(TestCase):
     """
     Test some nominal data
     """
-    pass
+    @class_setup
+    def setUp(self):
+        self.input = ["1234567 MCKINLEY D'NA-THAN AWESOME nmc F13 S15", "2345678 GUTMAN CAMERON camg F13 S14"]
+        self.output = "1234567,McKinley,D'Na-than,Awesome,nmc,S15\n2345678,Gutman,Cameron,,camg,S14\n"
+
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_multiple_lines(self, output):
+        assert_equals(True, translator.main(self.input))
+        assert_equals(self.output, output.getvalue())
 
 class BadData(TestCase):
     """
@@ -49,7 +52,9 @@ class StressTest(TestCase):
     """
     Some stress testing
     """
-    pass
+    @suite('stress', reason="Time Intensive Stress Test not needed on every test run")
+    def test_more_input(self):
+        pass
 
 class ErrorGuessing(TestCase):
     """
@@ -60,6 +65,7 @@ class ErrorGuessing(TestCase):
 '''
 TODO
 test empty lines
+makefile
 '''
 # class ExhaustiveTests(unittest.TestCase):
 
