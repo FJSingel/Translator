@@ -29,7 +29,6 @@ If      86
 Total:              10
 """
 
-#from mock import patch
 from mock import patch
 from StringIO import StringIO
 
@@ -37,9 +36,10 @@ from testify import *
 
 import translator
 
+#Constants for checking error handling
 NO_MATCH = "Data is empty or does not match. Exiting.\n"
 TOKEN_ERROR = "Error in token: "
-NONSEVEN_LIST_ERROR = "List not of length 7\n"
+NONSEVEN_LIST_ERROR = "List not of appropriate length\n"
 EXIT_SUCCESS = True
 EXIT_FAILURE = False
 
@@ -131,6 +131,13 @@ class BoundaryTests(TestCase):
     def test_no_SXX(self, output):
         assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY NATHAN nmc F13"]))
         assert_equals(NONSEVEN_LIST_ERROR + NO_MATCH, output.getvalue())
+
+    def test_prefixes(self, output):
+        '''Tests legal prefixes of Mc, Mac, De, D', and L' '''
+        raw =       ["MCKINLEY", "O'REILLEY", "MACDONALD", "DESHAUN", "D'MARQUIS", "L'HOPITAL"]
+        processed = ["McKinley", "O'Reilley", "MacDonald", "DeShaun", "D'Marquis", "L'Hopital"]
+        for pre, post in zip(raw, processed):
+            assert_equals(post, translator._format_name(pre))
 
 @patch('sys.stdout', new_callable=StringIO)
 class DataFlow(TestCase):

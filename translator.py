@@ -6,7 +6,6 @@ This module translates a series of spaces strings into CSVs
 """
 
 import re
-# import sys
 from sys import stdin
 
 #Regex Strings
@@ -17,7 +16,7 @@ regexes = ["\d{7} ",
 			"[a-z]+ ",
 			"F13 ",
 			"S[0-9]{2} "]
-
+#Exit Codes
 EXIT_FAILURE = False
 EXIT_SUCCESS = True
 
@@ -32,8 +31,8 @@ def main(lines):
 			if len(tokens) == 6:
 				tokens.insert(3, " ")
 			else:
-				_len_seven_or_valueerror(tokens)
-			_validate_tokens(tokens)
+				_len_seven_or_valueerror(tokens) #can raise ValueError
+			_validate_tokens(tokens) #can raise Valueerror
 		except ValueError:
 			print "Data is empty or does not match. Exiting."
 			return EXIT_FAILURE
@@ -75,7 +74,7 @@ def _format_name(name):
 	'''correctly capitalizes various names'''
 	assert(len(name) != 0)
 	result = name[0]
-	prefixes = re.compile("Mc\Z|O'\Z|De\Z|D'\Z|Mac\Z")
+	prefixes = re.compile("Mc\Z|O'\Z|De\Z|D'\Z|Mac\Z|L'\Z")
 	for char in name[1:]:
 		if prefixes.match(result) != None: #if case to cap is found
 			result += char
@@ -85,7 +84,7 @@ def _format_name(name):
 
 def _len_seven_or_valueerror(item):
 	if len(item) != 7:
-		print "List not of length 7"
+		print "List not of appropriate length"
 		raise ValueError
 
 if __name__ == '__main__':
