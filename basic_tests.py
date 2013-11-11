@@ -1,6 +1,6 @@
 #from mock import patch
 from mock import patch
-import sys
+from StringIO import StringIO
 
 from testify import *
 
@@ -12,12 +12,55 @@ class BasisTests(TestCase):
     """
     @class_setup
     def setUp(self):
-        self
+        self.input = ["1234567 MCKINLEY NATHAN AWESOME nmc F13 S15"]
+        self.output = "1234567,MCKINLEY,NATHAN,AWESOME,nmc,S15\n"
 
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_nominal(self, output):
+        # translator.main(self.input)
+        assert(translator.main(self.input))
+        assert_equals(self.output, output.getvalue())
 
-    def test_validate(self):
-        pass
+class DataFlow(TestCase):
+    """
+    Test some dataflow cases
+    """
+    pass
 
+class BoundaryTests(TestCase):
+    """
+    Test some boundary data
+    """
+    pass
+
+class GoodData(TestCase):
+    """
+    Test some nominal data
+    """
+    pass
+
+class BadData(TestCase):
+    """
+    Test some bad data
+    """
+    pass
+
+class StressTest(TestCase):
+    """
+    Some stress testing
+    """
+    pass
+
+class ErrorGuessing(TestCase):
+    """
+    Guessing errors here
+    """
+    pass
+
+'''
+TODO
+test empty lines
+'''
 # class ExhaustiveTests(unittest.TestCase):
 
 #     def setUp(self):
@@ -34,4 +77,4 @@ class BasisTests(TestCase):
 #         print translator.main()
 
 if __name__ == '__main__':
-    unittest.main()
+    run()
