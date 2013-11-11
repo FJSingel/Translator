@@ -18,21 +18,15 @@ regexes = ["\d{7} ",
 			"F13 ",
 			"S[0-9]{2} "]
 
-ERROR_FAILURE = -1
+EXIT_FAILURE = -1
 
 
-def main():
-
-	for line in stdin.readlines():
-		print line
-
-		if line == None:
-			raise ValueError
-
-		tokens = re.split("\s", line)
-		#remove empty tokens
-		tokens = filter(None, tokens)
-		tokens = [token + ' ' for token in tokens] #end each token with whitespace
+def main(lines):
+	'''
+	Takes a list of lines as input.
+	'''
+	for line in lines:
+		tokens = _format_line(line)
 
 		try:
 			#Ensures entry has 7 values
@@ -42,17 +36,13 @@ def main():
 				raise ValueError
 			_validate_tokens(tokens)
 		except ValueError:
-			print "Data does not match."
-			return "Failure!"
+			print "Data does not match. Exiting."
+			return EXIT_FAILURE
 
 	    #Form a line for printing without F13
-		print tokens
 		tokens.remove("F13 ")
 		line = "".join([token[:-1] + ',' for token in tokens])
 		print line[:-1]
-
-		return tokens
-
 
 def _validate_tokens(tokens):
 	token_pairs = zip(regexes, tokens)
@@ -61,5 +51,12 @@ def _validate_tokens(tokens):
 			print "Error in token: |" + token + "|"
 			raise ValueError
 
+def _format_line(line):
+	tokens = re.split("\s", line)
+	#remove empty tokens
+	tokens = filter(None, tokens)
+	return [token + ' ' for token in tokens] #end each token with whitespace
+
 if __name__ == '__main__':
-	main()
+	lines = stdin.readlines()
+	main(lines)
