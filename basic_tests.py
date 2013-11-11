@@ -39,6 +39,8 @@ import translator
 
 NO_MATCH = "Data is empty or does not match. Exiting.\n"
 TOKEN_ERROR = "Error in token: "
+EMPTY_LIST_ERROR = "List is empty\n"
+NONSEVEN_LIST_ERROR = "List not of length 7\n"
 EXIT_SUCCESS = True
 EXIT_FAILURE = False
 
@@ -60,7 +62,7 @@ class BasisTests(TestCase):
     def test_five_tokens(self, output):
         #Test Elif 34
         assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY nmc F13 S15"]))
-        assert_equals(NO_MATCH, output.getvalue())
+        assert_equals(NONSEVEN_LIST_ERROR + NO_MATCH, output.getvalue())
 
     def test_validate_no_tokens(self, output):
         #Test If 49
@@ -71,7 +73,7 @@ class BasisTests(TestCase):
         #Test If 53
         with assert_raises(ValueError):
             translator._validate_tokens(["ERROR"])
-        assert_equals(TOKEN_ERROR + "ERROR" +"\n", output.getvalue())
+        assert_equals(NONSEVEN_LIST_ERROR, output.getvalue())
 
     def test_tokenize_input(self, output):
         #Test for 62
@@ -85,12 +87,12 @@ class BasisTests(TestCase):
     def test_format_no_output(self, output):
         with assert_raises(ValueError):
             translator._format_output([])
-        assert_equals("", output.getvalue())
+        assert_equals(EMPTY_LIST_ERROR, output.getvalue())
 
     def test_format_no_name(self, output):
         with assert_raises(ValueError):
             translator._format_name("")
-        assert_equals("", output.getvalue())
+        assert_equals(EMPTY_LIST_ERROR, output.getvalue())
 
     def test_format_name_prefix(self, output):
         #test if 80
@@ -99,6 +101,12 @@ class BasisTests(TestCase):
     def test_assert_not_empty(self, output):
         with assert_raises(ValueError):
             translator._assert_not_empty("")
+        translator._assert_not_empty("A")
+
+    def test_assert_size_seven(self, output):
+        with assert_raises(ValueError):
+            translator._assert_size_seven(["","","","","",""])
+        translator._assert_size_seven(["","","","","","",""])
 
 @patch('sys.stdout', new_callable=StringIO)
 class BoundaryTests(TestCase):
@@ -112,23 +120,23 @@ class BoundaryTests(TestCase):
 
     def test_no_number(self, output):
         assert_equals(EXIT_FAILURE, translator.main([" MCKINLEY NATHAN nmc F13 S15"]))
-        assert_equals(NO_MATCH, output.getvalue())
+        assert_equals(NONSEVEN_LIST_ERROR + NO_MATCH, output.getvalue())
 
     def test_missing_name(self, output):
         assert_equals(EXIT_FAILURE, translator.main(["1234567 N n F13 S00"]))
-        assert_equals(NO_MATCH, output.getvalue())
+        assert_equals(NONSEVEN_LIST_ERROR + NO_MATCH, output.getvalue())
 
     def test_no_id(self, output):
         assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY NATHAN F13 S15"]))
-        assert_equals(NO_MATCH, output.getvalue())
+        assert_equals(NONSEVEN_LIST_ERROR + NO_MATCH, output.getvalue())
 
     def test_no_F13(self, output):
         assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY NATHAN nmc S15"]))
-        assert_equals(NO_MATCH, output.getvalue())
+        assert_equals(NONSEVEN_LIST_ERROR + NO_MATCH, output.getvalue())
 
     def test_no_SXX(self, output):
         assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY NATHAN nmc F13"]))
-        assert_equals(NO_MATCH, output.getvalue())
+        assert_equals(NONSEVEN_LIST_ERROR + NO_MATCH, output.getvalue())
 
 @patch('sys.stdout', new_callable=StringIO)
 class DataFlow(TestCase):

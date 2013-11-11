@@ -28,11 +28,11 @@ def main(lines):
 	for line in lines:
 		try:
 			tokens = _tokenize_input(line)
-			#Ensures entry has 7 values
+			#Ensures entry has 7 values by adding blank where nickname should be
 			if len(tokens) == 6:
 				tokens.insert(3, " ")
-			elif len(tokens) != 7:
-				raise ValueError
+			else:
+				_assert_size_seven(tokens)
 			_validate_tokens(tokens)
 		except ValueError:
 			print "Data is empty or does not match. Exiting."
@@ -43,10 +43,11 @@ def main(lines):
 
 def _validate_tokens(tokens):
 	'''
-	Compares list of tokens against a list of regexes.
-	Raise exception to be caught if a mismatch
+	Compares list of 7 tokens against a list of 7 regexes.
+	Raise exception to be caught if a mismatch occurs
 	'''
-	_assert_not_empty(tokens)
+	_assert_size_seven(tokens)
+	_assert_size_seven(regexes)
 	token_pairs = zip(regexes, tokens)
 	for regex, token in token_pairs:
 		if re.match(regex, token) == None:
@@ -61,12 +62,12 @@ def _tokenize_input(line):
 	return [token + ' ' for token in tokens] #end each token with whitespace
 
 def _format_output(tokens):
-	'''Form a line for printing without F13 with accurate capitalization'''
+	'''Form a line for printing without F13 with accurate capitalization.'''
 	_assert_not_empty(tokens)
 	for index in xrange(1,4):
 		if tokens[index] != "": #skip nickname if not present
 			tokens[index] = _format_name(tokens[index])
-	tokens.remove("F13 ")
+	tokens.remove("F13 ") #This is required to be in the tokens because validate_tokens is called prior
 	line = "".join([token[:-1] + ',' for token in tokens])
 	return line[:-1]
 
@@ -84,8 +85,14 @@ def _format_name(name):
 
 def _assert_not_empty(item):
 	if len(item) == 0:
+		print "List is empty"
+		raise ValueError
+
+def _assert_size_seven(item):
+	if len(item) != 7:
+		print "List not of length 7"
 		raise ValueError
 
 if __name__ == '__main__':
 	lines = stdin.xreadlines()
-	main(lines)
+	main(lines)	
