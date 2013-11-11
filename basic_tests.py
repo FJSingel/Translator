@@ -144,15 +144,38 @@ class DataFlow(TestCase):
         assert_equals(EXIT_SUCCESS, translator.main(self.input))
         assert_equals(self.output, output.getvalue())
 
+@patch('sys.stdout', new_callable=StringIO)
 class BadData(TestCase):
     """
     Test some bad data
     """
     def test_bad_number(self, output):
         assert_equals(EXIT_FAILURE, translator.main(["1234 MCKINLEY NATHAN nmc F13 S15"]))
-        assert_equals(NO_MATCH, output.getvalue())
+        assert_equals(TOKEN_ERROR + "1234 \n" + NO_MATCH, output.getvalue())
 
-    
+    def test_bad_first(self, output):
+        assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY Nathan nmc F13 S15"]))
+        assert_equals(TOKEN_ERROR + "Nathan \n" + NO_MATCH, output.getvalue())
+
+    def test_bad_last(self, output):
+        assert_equals(EXIT_FAILURE, translator.main(["1234567 McKINLEY NATHAN nmc F13 S15"]))
+        assert_equals(TOKEN_ERROR + "McKINLEY \n" + NO_MATCH, output.getvalue())
+
+    def test_bad_nick(self, output):
+        assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY NATHAN Awesome nmc F13 S15"]))
+        assert_equals(TOKEN_ERROR + "Awesome \n" + NO_MATCH, output.getvalue())
+
+    def test_bad_id(self, output):
+        assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY NATHAN nMc F13 S15"]))
+        assert_equals(TOKEN_ERROR + "nMc \n" + NO_MATCH, output.getvalue())
+
+    def test_bad_F13(self, output):
+        assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY NATHAN nmc f13 S15"]))
+        assert_equals(TOKEN_ERROR + "f13 \n" + NO_MATCH, output.getvalue())
+
+    def test_bad_SXX(self, output):
+        assert_equals(EXIT_FAILURE, translator.main(["1234567 MCKINLEY NATHAN nmc F13 s15"]))
+        assert_equals(TOKEN_ERROR + "s15 \n" + NO_MATCH, output.getvalue())
 
 @patch('sys.stdout', new_callable=StringIO)
 class StressTest(TestCase):
